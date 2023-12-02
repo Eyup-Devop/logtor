@@ -45,6 +45,10 @@ func NewBrokerCreator(brokers []string, topic string, logName types.LogCreatorNa
 		}
 	}()
 
+	if logName == "" {
+		logName = Broker
+	}
+
 	brokerCreator := &BrokerCreator{
 		logName:   logName,
 		topic:     topic,
