@@ -5,7 +5,6 @@
 package creators
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -74,9 +73,8 @@ type FileCreator struct {
 // Returns:
 //   - bool: Always returns true, indicating the message was successfully logged.
 func (fr *FileCreator) LogItWithCallDepth(level types.LogLevel, callDepth int, logMessage interface{}) bool {
-	message, _ := json.Marshal(logMessage)
 	fr.log.SetPrefix(fmt.Sprintf("%-*s : ", fr.logPrefix, level))
-	fr.log.Output(callDepth, fmt.Sprintf("%+v", string(message)))
+	fr.log.Output(callDepth, fmt.Sprintf("%+v", logMessage))
 	return true
 }
 

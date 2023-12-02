@@ -1,7 +1,6 @@
 package creators
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -64,9 +63,8 @@ type BaseCreator struct {
 // Returns:
 //   - bool: Always returns true, indicating the message was successfully logged.
 func (br *BaseCreator) LogItWithCallDepth(level types.LogLevel, callDepth int, logMessage interface{}) bool {
-	message, _ := json.Marshal(logMessage)
 	br.log.SetPrefix(fmt.Sprintf("%s%-*s : ", types.GetColorForLogLevel(level), br.logPrefix, level))
-	br.log.Output(callDepth, fmt.Sprintf("%+v%s", string(message), types.ResetColor))
+	br.log.Output(callDepth, fmt.Sprintf("%+v%s", logMessage, types.ResetColor))
 	return true
 }
 
