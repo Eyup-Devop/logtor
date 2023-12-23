@@ -7,7 +7,9 @@
 package creators
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"io"
 	"log"
 	"runtime"
 	"time"
@@ -29,7 +31,7 @@ import (
 // Returns:
 //   - *BrokerCreator: A pointer to the newly created BrokerCreator.
 //   - error: An error if initialization fails, or nil if successful.
-func NewBrokerCreator(brokers []string, topic string, logName types.LogCreatorName, callDepth int) (*BrokerCreator, error) {
+func NewBrokerCreator(brokers []string, topic string, logName types.LogCreatorName, callDepth int, failWriter io.Writer) (*BrokerCreator, error) {
 	config := sarama.NewConfig()
 	config.Producer.RequiredAcks = sarama.WaitForLocal
 	config.Producer.Compression = sarama.CompressionSnappy
@@ -39,11 +41,16 @@ func NewBrokerCreator(brokers []string, topic string, logName types.LogCreatorNa
 		return nil, err
 	}
 
-	go func() {
-		for err := range producer.Errors() {
-			log.Println("Failed to write log entry:", err)
+	go func(failWriter io.Writer) {
+		if failWriter != nil {
+			errorLog := log.New(failWriter, "", 0)
+
+			for err := range producer.Errors() {
+				errorKey := base64.StdEncoding.EncodeToString(err.Msg.Value.(sarama.ByteEncoder))
+				errorLog.Println(errorKey)
+			}
 		}
-	}()
+	}(failWriter)
 
 	if logName == "" {
 		logName = Broker

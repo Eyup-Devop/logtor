@@ -28,7 +28,7 @@ var brokers = []string{"127.0.0.1:19092"}
 // It initializes a BrokerCreator with specified settings, logs an example string message at the ERROR level,
 // and checks if the log entry is recorded successfully. The test includes a sleep period to allow time for message processing.
 func TestBrokerCreatorWithString(t *testing.T) {
-	brokerCreator, err := creators.NewBrokerCreator(brokers, "test", "Broker", 2)
+	brokerCreator, err := creators.NewBrokerCreator(brokers, "test", "Broker", 2, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -45,7 +45,7 @@ func TestBrokerCreatorWithString(t *testing.T) {
 // logs the struct at the WARN and INFO levels, and checks if the log entries are recorded successfully.
 // The test includes a sleep period to allow time for message processing.
 func TestBrokerCreatorWithStruct(t *testing.T) {
-	brokerCreator, err := creators.NewBrokerCreator(brokers, "test", "Broker", 2)
+	brokerCreator, err := creators.NewBrokerCreator(brokers, "test", "Broker", 2, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -75,7 +75,7 @@ func TestBrokerCreatorWithStruct(t *testing.T) {
 // converts the struct to JSON, logs the JSON data at the DEBUG and TRACE levels,
 // and checks if the log entries are recorded successfully. The test includes a sleep period to allow time for message processing.
 func TestBrokerCreatorWithJson(t *testing.T) {
-	brokerCreator, err := creators.NewBrokerCreator(brokers, "test", "Broker", 2)
+	brokerCreator, err := creators.NewBrokerCreator(brokers, "test", "Broker", 2, nil)
 	if err != nil {
 		t.Error(err)
 	}
