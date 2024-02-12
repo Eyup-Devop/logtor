@@ -61,8 +61,13 @@ type Logtor struct {
 //
 // Parameters:
 //   - logLevel: The new global log level to set for the Logtor.
-func (l *Logtor) SetLogLevel(logLevel types.LogLevel) {
-	l.logLevel = logLevel
+func (l *Logtor) SetLogLevel(logLevel types.LogLevel) bool {
+	switch logLevel {
+	case types.NONE, types.FATAL, types.ERROR, types.WARN, types.DEBUG, types.INFO, types.TRACE:
+		l.logLevel = logLevel
+		return true
+	}
+	return false
 }
 
 // LogLevel returns the current global log level of the Logtor instance.

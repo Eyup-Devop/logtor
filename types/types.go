@@ -29,6 +29,8 @@ const (
 	TRACE LogLevel = "TRACE"
 )
 
+var LogLevelList = []LogLevel{NONE, FATAL, ERROR, WARN, DEBUG, INFO, TRACE}
+
 type LogCreatorName string
 
 var (

@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"io"
 	"log"
+	"os"
 	"runtime"
 	"time"
 
@@ -42,13 +43,14 @@ func NewBrokerCreator(brokers []string, topic string, logName types.LogCreatorNa
 	}
 
 	go func(failWriter io.Writer) {
+		errorLog := log.New(os.Stdout, "", 0)
 		if failWriter != nil {
-			errorLog := log.New(failWriter, "", 0)
+			errorLog = log.New(failWriter, "", 0)
+		}
 
-			for err := range producer.Errors() {
-				errorKey := base64.StdEncoding.EncodeToString(err.Msg.Value.(sarama.ByteEncoder))
-				errorLog.Println(errorKey)
-			}
+		for err := range producer.Errors() {
+			errorKey := base64.StdEncoding.EncodeToString(err.Msg.Value.(sarama.ByteEncoder))
+			errorLog.Println(errorKey)
 		}
 	}(failWriter)
 

@@ -76,7 +76,7 @@ func TestLogtorUsingFileCreatorWithString(t *testing.T) {
 
 func TestLogtorUsingBrokerCreatorWithString(t *testing.T) {
 	brokers := []string{"127.0.0.1:19092"}
-	brokerCreator, err := creators.NewBrokerCreator(brokers, "test", "Broker", 2)
+	brokerCreator, err := creators.NewBrokerCreator(brokers, "test", "Broker", 2, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -112,7 +112,7 @@ func TestLogtorUsingAllCreators(t *testing.T) {
 		t.Error(err)
 	}
 	brokers := []string{"127.0.0.1:19092"}
-	brokerCreator, err := creators.NewBrokerCreator(brokers, "test", "Broker", 2)
+	brokerCreator, err := creators.NewBrokerCreator(brokers, "test", "Broker", 2, nil)
 	if err != nil {
 		t.Error(err)
 	}
