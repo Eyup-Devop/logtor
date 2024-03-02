@@ -165,7 +165,9 @@ func (l *Logtor) LogItWithCallDepth(level types.LogLevel, callDepth int, logMess
 func (l *Logtor) AddLogCreators(logCreators ...LogCreator) {
 	l.changeMutex.Lock()
 	for _, logCreator := range logCreators {
-		l.logCreatorList[logCreator.LogName()] = logCreator
+		if logCreator != nil {
+			l.logCreatorList[logCreator.LogName()] = logCreator
+		}
 	}
 	l.changeMutex.Unlock()
 	if l.activeLogCreator == nil {
