@@ -17,24 +17,32 @@
 package logtor
 
 import (
+	"reflect"
 	"sync"
 
 	"github.com/Eyup-Devop/logtor/types"
 )
 
-// NewLogtor creates a new Logtor instance with default settings.
+var defaultCreatorName string = "defaultCreator"
+
+// New creates a new Logtor instance with default settings.
 //
 // It initializes a Logtor with an empty list of log creators, a global log level set to NONE,
-// and no active log creator selected.
+// and no current log creator selected.
 //
 // Returns:
 //   - *Logtor: A pointer to the newly created Logtor.
-func NewLogtor() *Logtor {
+func New() *Logtor {
 	return &Logtor{
-		logCreatorList:   make(map[types.LogCreatorName]LogCreator),
-		logLevel:         types.NONE,
-		activeLogCreator: nil,
+		logCreatorList:    make(map[types.LogCreatorName]LogCreator),
+		logLevel:          types.NONE,
+		currentLogCreator: nil,
 	}
+}
+
+func (l *Logtor) WithDefaultCreator(creator LogCreator) *Logtor {
+	l.defaultCreator = creator
+	return l
 }
 
 // Logtor is a central logging manager that coordinates multiple log creators and log levels.
@@ -45,13 +53,14 @@ func NewLogtor() *Logtor {
 // Fields:
 //   - logCreatorList: A map of LogCreatorName to LogCreator, representing registered log creator.
 //   - logLevel: The global log level that controls which log messages are created.
-//   - activeLogCreator: The currently active log creator for logging messages.
+//   - currentLogCreator: The currently active log creator for logging messages.
 //   - changeMutex: A read-write mutex to control concurrent access to Logtor's fields.
 type Logtor struct {
-	logCreatorList   map[types.LogCreatorName]LogCreator
-	logLevel         types.LogLevel
-	activeLogCreator LogCreator
-	changeMutex      sync.RWMutex
+	logCreatorList    map[types.LogCreatorName]LogCreator
+	logLevel          types.LogLevel
+	currentLogCreator LogCreator
+	changeMutex       sync.RWMutex
+	defaultCreator    LogCreator
 }
 
 // SetLogLevel sets the global log level for the Logtor instance.
@@ -62,8 +71,7 @@ type Logtor struct {
 // Parameters:
 //   - logLevel: The new global log level to set for the Logtor.
 func (l *Logtor) SetLogLevel(logLevel types.LogLevel) bool {
-	switch logLevel {
-	case types.NONE, types.FATAL, types.ERROR, types.WARN, types.DEBUG, types.INFO, types.TRACE:
+	if logLevel.IsValid() {
 		l.logLevel = logLevel
 		return true
 	}
@@ -73,7 +81,7 @@ func (l *Logtor) SetLogLevel(logLevel types.LogLevel) bool {
 // LogLevel returns the current global log level of the Logtor instance.
 //
 // Use this method to retrieve the current global log level, which determines which log messages
-// are recorded and displayed. The returned value is of type LogLevelType.
+// are recorded or displayed. The returned value is of type LogLevelType.
 //
 // Returns:
 //   - LogLevelType: The current global log level.
@@ -96,10 +104,10 @@ func (l *Logtor) LogLevel() types.LogLevel {
 func (l *Logtor) ChangeLogCreator(logCreatorName types.LogCreatorName) bool {
 	l.changeMutex.RLock()
 	defer l.changeMutex.RUnlock()
-	if l.logCreatorList[logCreatorName] == nil {
+	if _, ok := l.logCreatorList[logCreatorName]; !ok {
 		return false
 	}
-	l.activeLogCreator = l.logCreatorList[logCreatorName]
+	l.currentLogCreator = l.logCreatorList[logCreatorName]
 	return true
 }
 
@@ -111,7 +119,7 @@ func (l *Logtor) ChangeLogCreator(logCreatorName types.LogCreatorName) bool {
 // Returns:
 //   - LogCreator: The currently active log creator.
 func (l *Logtor) LogCreator() LogCreator {
-	return l.activeLogCreator
+	return l.currentLogCreator
 }
 
 // LogIt logs a message at the specified log level using the currently active log creator.
@@ -127,8 +135,10 @@ func (l *Logtor) LogCreator() LogCreator {
 // Returns:
 //   - bool: True if the message was successfully logged; false if it was skipped due to the log level.
 func (l *Logtor) LogIt(level types.LogLevel, logMessage interface{}) bool {
-	if types.IsLogLevelAcceptable(l.LogLevel(), level) {
-		return l.activeLogCreator.LogIt(level, logMessage)
+	if l.logLevel.IsLogLevelAcceptable(level) && l.currentLogCreator.IsReady() {
+		return l.currentLogCreator.LogIt(level, logMessage)
+	} else if l.logLevel.IsLogLevelAcceptable(level) && !l.currentLogCreator.IsReady() && l.defaultCreator != nil {
+		return l.defaultCreator.LogIt(level, logMessage)
 	}
 	return false
 }
@@ -147,9 +157,10 @@ func (l *Logtor) LogIt(level types.LogLevel, logMessage interface{}) bool {
 // Returns:
 //   - bool: True if the message was successfully logged; false if it was skipped due to the log level.
 func (l *Logtor) LogItWithCallDepth(level types.LogLevel, callDepth int, logMessage interface{}) bool {
-	if types.IsLogLevelAcceptable(l.LogLevel(), level) {
-		l.activeLogCreator.LogItWithCallDepth(level, callDepth, logMessage)
-		return true
+	if types.IsLogLevelAcceptable(l.LogLevel(), level) && l.currentLogCreator.IsReady() {
+		return l.currentLogCreator.LogItWithCallDepth(level, callDepth, logMessage)
+	} else if l.logLevel.IsLogLevelAcceptable(level) && !l.currentLogCreator.IsReady() && l.defaultCreator != nil {
+		return l.defaultCreator.LogItWithCallDepth(level, callDepth, logMessage)
 	}
 	return false
 }
@@ -165,12 +176,12 @@ func (l *Logtor) LogItWithCallDepth(level types.LogLevel, callDepth int, logMess
 func (l *Logtor) AddLogCreators(logCreators ...LogCreator) {
 	l.changeMutex.Lock()
 	for _, logCreator := range logCreators {
-		if logCreator != nil {
+		if logCreator != nil && !reflect.ValueOf(logCreator).IsNil() {
 			l.logCreatorList[logCreator.LogName()] = logCreator
 		}
 	}
 	l.changeMutex.Unlock()
-	if l.activeLogCreator == nil {
+	if l.currentLogCreator == nil {
 		l.ChangeLogCreator(logCreators[0].LogName())
 	}
 }

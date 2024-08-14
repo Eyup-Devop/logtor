@@ -128,3 +128,7 @@ func (fr *FileCreator) CallDepth() int {
 func (fr *FileCreator) Shutdown() {
 	// No cleanup or shutdown actions needed for FileCreator.
 }
+
+func (fr *FileCreator) IsReady() bool {
+	return true
+}

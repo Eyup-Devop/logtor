@@ -36,8 +36,21 @@ func NewBrokerCreator(brokers []string, topic string, logName types.LogCreatorNa
 	config := sarama.NewConfig()
 	config.Producer.RequiredAcks = sarama.WaitForLocal
 	config.Producer.Compression = sarama.CompressionSnappy
+	config.ChannelBufferSize = 1024 * 10
+	config.Producer.MaxMessageBytes = 1024 * 1024 * 10
+	config.Producer.Retry.Max = 10
+	config.Producer.Retry.Backoff = 10 * time.Second
 
-	producer, err := sarama.NewAsyncProducer(brokers, config)
+	var producer sarama.AsyncProducer
+	var err error
+	for i := 0; i < 5; i++ {
+		producer, err = sarama.NewAsyncProducer(brokers, config)
+		if err == nil {
+			break
+		}
+		time.Sleep(5 * time.Second)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -180,4 +193,8 @@ func (br *BrokerCreator) CallDepth() int {
 // Use this method to perform any necessary cleanup or shutdown operations for the log creator.
 func (br *BrokerCreator) Shutdown() {
 	br.producer.Close()
+}
+
+func (br *BrokerCreator) IsReady() bool {
+	return true
 }

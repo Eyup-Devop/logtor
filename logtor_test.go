@@ -30,7 +30,7 @@ func TestLogtorUsingBaseCreatorWithString(t *testing.T) {
 		t.Error(err)
 	}
 
-	newLogtor := logtor.NewLogtor()
+	newLogtor := logtor.New()
 	newLogtor.AddLogCreators(baseCreator)
 	newLogtor.SetLogLevel(types.TRACE)
 
@@ -55,7 +55,7 @@ func TestLogtorUsingFileCreatorWithString(t *testing.T) {
 		t.Error(err)
 	}
 
-	newLogtor := logtor.NewLogtor()
+	newLogtor := logtor.New()
 	newLogtor.AddLogCreators(fileCreator)
 	newLogtor.SetLogLevel(types.TRACE)
 
@@ -81,7 +81,7 @@ func TestLogtorUsingBrokerCreatorWithString(t *testing.T) {
 		t.Error(err)
 	}
 
-	newLogtor := logtor.NewLogtor()
+	newLogtor := logtor.New()
 	newLogtor.AddLogCreators(brokerCreator)
 	newLogtor.SetLogLevel(types.TRACE)
 
@@ -117,7 +117,7 @@ func TestLogtorUsingAllCreators(t *testing.T) {
 		t.Error(err)
 	}
 
-	newLogtor := logtor.NewLogtor()
+	newLogtor := logtor.New()
 	newLogtor.AddLogCreators(baseCreator, fileCreator, brokerCreator)
 	newLogtor.SetLogLevel(types.TRACE)
 

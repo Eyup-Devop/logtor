@@ -27,7 +27,7 @@ func TestGetLogCreatorListHandlerFunc(t *testing.T) {
 		t.Error(err)
 	}
 
-	newLogtor := logtor.NewLogtor()
+	newLogtor := logtor.New()
 	newLogtor.AddLogCreators(baseCreator, fileCreator, brokerCreator)
 	newLogtor.SetLogLevel(types.TRACE)
 
@@ -71,7 +71,7 @@ func TestGetCurrentLogCreatorHandlerFunc(t *testing.T) {
 		t.Error(err)
 	}
 
-	newLogtor := logtor.NewLogtor()
+	newLogtor := logtor.New()
 	newLogtor.AddLogCreators(baseCreator, fileCreator, brokerCreator)
 	newLogtor.SetLogLevel(types.TRACE)
 
@@ -115,7 +115,7 @@ func TestChangeActiveLogCreatorHandlerFunc(t *testing.T) {
 		t.Error(err)
 	}
 
-	newLogtor := logtor.NewLogtor()
+	newLogtor := logtor.New()
 	newLogtor.AddLogCreators(baseCreator, fileCreator, brokerCreator)
 	newLogtor.SetLogLevel(types.TRACE)
 
@@ -169,7 +169,7 @@ func TestGetLogLevelListHandlerFunc(t *testing.T) {
 		t.Error(err)
 	}
 
-	newLogtor := logtor.NewLogtor()
+	newLogtor := logtor.New()
 	newLogtor.AddLogCreators(baseCreator, fileCreator, brokerCreator)
 	newLogtor.SetLogLevel(types.TRACE)
 
@@ -213,7 +213,7 @@ func TestGetActiveLogLevelHandlerFunc(t *testing.T) {
 		t.Error(err)
 	}
 
-	newLogtor := logtor.NewLogtor()
+	newLogtor := logtor.New()
 	newLogtor.AddLogCreators(baseCreator, fileCreator, brokerCreator)
 	newLogtor.SetLogLevel(types.TRACE)
 
@@ -257,7 +257,7 @@ func TestSetLogLevelHandlerFunc(t *testing.T) {
 		t.Error(err)
 	}
 
-	newLogtor := logtor.NewLogtor()
+	newLogtor := logtor.New()
 	newLogtor.AddLogCreators(baseCreator, fileCreator, brokerCreator)
 	newLogtor.SetLogLevel(types.TRACE)
 

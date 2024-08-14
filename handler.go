@@ -35,7 +35,7 @@ func (l *Logtor) GetCurrentLogCreator(w http.ResponseWriter, r *http.Request) {
 	result := struct {
 		CurrentLogCreator string `json:"current_log_creator"`
 	}{
-		CurrentLogCreator: string(l.activeLogCreator.LogName()),
+		CurrentLogCreator: string(l.currentLogCreator.LogName()),
 	}
 	jsonResult, err := json.Marshal(result)
 	if err != nil {
@@ -65,7 +65,7 @@ func (l *Logtor) ChangeActiveLogCreator(w http.ResponseWriter, r *http.Request) 
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	oldLogCreator := string(l.activeLogCreator.LogName())
+	oldLogCreator := string(l.currentLogCreator.LogName())
 	var currentLogCreator string
 	if v, ok := payload["log_creator"]; ok {
 		l.changeMutex.RUnlock()

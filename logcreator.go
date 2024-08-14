@@ -25,6 +25,9 @@ type LogCreator interface {
 	// CallDepth returns the call depth for the log creator.
 	CallDepth() int
 
+	// IsReady() returns true if the log creator is ready to log messages.
+	IsReady() bool
+
 	// Shutdown performs any necessary cleanup or shutdown operations for the log creator.
 	Shutdown()
 }

@@ -99,3 +99,26 @@ func IsLogLevelAcceptable(selected, using LogLevel) bool {
 		return false
 	}
 }
+
+func (d LogLevel) IsValid() bool {
+	levels := GetLogLevelList()
+	_, ok := levels[d]
+
+	return ok
+}
+
+func (d LogLevel) IsLogLevelAcceptable(level LogLevel) bool {
+	return IsLogLevelAcceptable(d, level)
+}
+
+func GetLogLevelList() map[LogLevel]struct{} {
+	return map[LogLevel]struct{}{
+		FATAL: {},
+		ERROR: {},
+		WARN:  {},
+		DEBUG: {},
+		INFO:  {},
+		TRACE: {},
+		NONE:  {},
+	}
+}

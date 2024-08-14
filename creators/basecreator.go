@@ -118,3 +118,7 @@ func (br *BaseCreator) CallDepth() int {
 func (br *BaseCreator) Shutdown() {
 	// No cleanup or shutdown actions needed for BaseCreator.
 }
+
+func (br *BaseCreator) IsReady() bool {
+	return true
+}
